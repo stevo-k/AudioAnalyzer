@@ -1,8 +1,13 @@
 # AudioAnalyzer
 
-The analyzer is meant to analyze audio data using a logarithmic amplitude as well as a logarithmic shaped point distribution on the frequency-axis by reducing the data to a fix amount of data points per octave (one octave represents a factor 2 in the frequency).
+This tool is meant to be used in front of your audio visualizer or just to display audio data in a graph. 
+- It 'adjusts' the output of the FFT and matches it to the behavior of the human ear (by using a log frequency and amplitude axis)
+- The data points along the frequency axis are reduced to e.g. 1/12 points per octave resultung in 60 points for 5 octaves instead of e.g. 16384 points when using the FFT data directly. This is called an 1/x octave smoothing. While there are other ways to recue the point count I've chosen this path because it allows me to define the start- and stop- frequency exactly for every octave band in order to get comparable results to other octave analyzers. 
+- When working with an FFT you usually need to decide between a good refresh rate or a good frequency resolution which is required for low frequencies. Using a 16384 point FFT takes 4 times longer to sample compared to a 4096 FFT, but it results in a frequency resolution which is also better by the factor 4. What I've added in this patch is a 3-step adaptive FFT where you can combine the strength of the shorter and longer FFT windows.
+- You can chosse between an pure 1/x-octave smoothing, a pure adaptive FFT (which has a smoothing effect as well depending on your settings) or the combination as its used in 'octave_band_analizer_adaptive'
 
-The patch includes 2 methods to analyze audio in different ways. The differences in the audio data between different methods can be seen in a comparison plot using the audioPlot.tox from Greg Hermanovic. https://forum.derivative.ca/t/audio-spectrum-plot/172363
+The differences in the audio data between different methods can be seen in a comparison plot using the audioPlot.tox from Greg Hermanovic. https://forum.derivative.ca/t/audio-spectrum-plot/172363
+
 
 1) A 3-step adaptive-FFT is used to get the frequency response for each of the 3 frequency bands (low, center, high) using various FFT-sizes. This is done to get the best mix between time- and frequency-resolution across the frequency spectrum. You can see the different update rates in the plot when looking closely. The data of the 3 bands gets merged to a complete spectrum (1st output) or it can be smoothed using a 1/x-octave smoothing (2nd output). This results in x 'evenly spaced' data points for every octave (e.g., 12 points = 1/12-octave).
 
